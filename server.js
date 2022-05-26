@@ -1,10 +1,18 @@
 const express = require('express');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const { v4: uuidv4 } = require("uuid");
 const { Server: SocketServer } = require("socket.io");
 
+var key = fs.readFileSync(__dirname + '/../certs/selfsigned.key');
+var cert = fs.readFileSync(__dirname + '/../certs/selfsigned.crt');
+var options = {
+  key: key,
+  cert: cert
+};
 const app = express();
-const expressServer = http.createServer(app);
+const expressServer = https.createServer(options, app);
 const io = new SocketServer(expressServer, {
     cors: {
         origin: '*'
@@ -16,7 +24,7 @@ const io = new SocketServer(expressServer, {
 var ExpressPeerServer = require('peer').ExpressPeerServer;
 var peerExpress = require('express');
 var peerApp = peerExpress();
-var peerServer = require('http').createServer(peerApp);
+var peerServer = require('https').createServer(options, peerApp);
 var options = { debug: true }
 var peerPort = 3001;
 peerApp.use('/peerjs', ExpressPeerServer(peerServer, options));
@@ -29,7 +37,7 @@ app.use(express.static("public"));
 
 // #region routes
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.redirect(`/${uuidv4()}`);
 });
 
 app.get('/rooms', (req, res) => {
