@@ -1,6 +1,8 @@
 let socket = io();
 
+//ToDo: switch for prompt later
 let user = Math.floor(Math.random() * 100)
+
 // #region chat
 let text = document.querySelector("#chat_message");
 let chatForm = document.getElementById("chat_form");
@@ -13,7 +15,6 @@ chatForm.addEventListener('submit', function (e) {
     }
 });
 
-//ToDo: switch for prompt later
 let messages = document.querySelector(".messages");
 socket.on("message:new", (message, userName) => {
     messages.innerHTML =
@@ -33,7 +34,10 @@ var peer = new Peer(undefined, {
 });
 
 // #region video
+const myVideo = document.createElement("video");
+myVideo.muted = true;
 let myVideoStream;
+//ToDo: check if this feature is supported by browser by checkin existence of navigator.mediaDevices
 navigator.mediaDevices
     .getUserMedia({
         audio: true,
@@ -52,6 +56,7 @@ navigator.mediaDevices
         });
 
         socket.on("room:user-connected", (userId) => {
+            console.log('new user connected')
             connectToNewUser(userId, stream);
         });
     });
@@ -73,6 +78,7 @@ const addVideoStream = (video, stream) => {
 };
 
 peer.on("open", (id) => {
+    console.log(id, ' ', user)
     socket.emit("room:join", ROOM_ID, id, user);
 });
 // #endregion
@@ -81,10 +87,8 @@ peer.on("open", (id) => {
 
 // #region interface?
 const videoGrid = document.getElementById("video-grid");
-const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
 const backBtn = document.querySelector(".header__back");
-myVideo.muted = true;
 
 backBtn.addEventListener("click", () => {
     document.querySelector(".main__left").style.display = "flex";
@@ -100,9 +104,7 @@ showChat.addEventListener("click", () => {
     document.querySelector(".header__back").style.display = "block";
 });
 
-const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
-const stopVideo = document.querySelector("#stopVideo");
 muteButton.addEventListener("click", () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -118,6 +120,7 @@ muteButton.addEventListener("click", () => {
   }
 });
 
+const stopVideo = document.querySelector("#stopVideo");
 stopVideo.addEventListener("click", () => {
   const enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
@@ -133,6 +136,7 @@ stopVideo.addEventListener("click", () => {
   }
 });
 
+const inviteButton = document.querySelector("#inviteButton");
 inviteButton.addEventListener("click", (e) => {
   prompt(
     "Copy this link and send it to people you want to meet with",
