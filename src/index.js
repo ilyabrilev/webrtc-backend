@@ -45,6 +45,11 @@ app.get('/', (req, res) => {
     res.redirect(`/${uuidv4()}`);
 });
 
+app.get('', (req, res) => {
+    console.log()
+    res.redirect(`/${uuidv4()}`);
+});
+
 app.get('/rooms', (req, res) => {
     res.redirect(`/${uuidv4()}`);
 });
@@ -56,7 +61,8 @@ app.get("/:room", (req, res) => {
 
 // start
 expressServer.listen(3000, () => {
-    console.log('listening on *:3000');
+    console.log(process.env.APP_PORT, )
+    console.log(`listening on ${process.env.APP_URL}${process.env.APP_PORT ? ':'+process.env.APP_PORT : ''}`);
 });
 
 // #region sockets
