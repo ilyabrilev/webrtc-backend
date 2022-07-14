@@ -1,108 +1,138 @@
-let socket = io();
+const socket = io();
 
-let user = Math.floor(Math.random() * 100)
-// #region chat
-let text = document.querySelector("#chat_message");
-let chatForm = document.getElementById("chat_form");
-
-chatForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (text.value.length !== 0) {
-        socket.emit('message:create', text.value);
-        text.value = '';
-    }
-});
+let users = [];
 
 //ToDo: switch for prompt later
-let messages = document.querySelector(".messages");
+const username = Math.floor(Math.random() * 100)
+
+// #region chat
+const chatMessage = document.querySelector("#chat_message");
+const chatForm = document.getElementById("chat_form");
+
+chatForm.addEventListener('submit', function (e) {
+  e.preventDefault();
+  if (chatMessage.value.length !== 0) {
+    socket.emit('message:create', chatMessage.value);
+    chatMessage.value = '';
+  }
+});
+
+const messages = document.querySelector(".messages");
 socket.on("message:new", (message, userName) => {
-    messages.innerHTML =
-        messages.innerHTML +
-        `<div class="message">
-          <b><i class="far fa-user-circle"></i> <span> ${userName === user ? "me" : userName
-        }</span> </b>
+  messages.innerHTML =
+    messages.innerHTML +
+    `<div class="message">
+          <b><i class="far fa-user-circle"></i> <span> ${userName === username ? "me" : userName
+    }</span> </b>
           <span>${message}</span>
       </div>`;
 });
 // #endregion
 
-var peer = new Peer(undefined, {
-    path: "/peerjs",
-    host: "/",
-    port: "3001",
+const peer = new Peer(undefined, {
+  path: "/peerjs",
+  host: "/",
+  port: 3001,
 });
 
 // #region video
+const myVideo = document.createElement("video");
+const videoGrid = document.getElementById("video-grid");
+myVideo.muted = true;
 let myVideoStream;
+//ToDo: check if this feature is supported by browser by checkin existence of navigator.mediaDevices
 navigator.mediaDevices
-    .getUserMedia({
-        audio: true,
-        video: true,
-    })
-    .then((stream) => {
-        myVideoStream = stream;
-        addVideoStream(myVideo, stream);
+  .getUserMedia({
+    audio: true,
+    video: true,
+  })
+  .then((stream) => {
+    myVideoStream = stream;
+    //addVideoStream(myVideo, stream, 'me');
 
-        peer.on("call", (call) => {
-            call.answer(stream);
-            const video = document.createElement("video");
-            call.on("stream", (userVideoStream) => {
-                addVideoStream(video, userVideoStream);
-            });
-        });
-
-        socket.on("room:user-connected", (userId) => {
-            connectToNewUser(userId, stream);
-        });
+    peer.on("call", (call) => {
+      call.answer(stream);
+      const video = document.createElement("video");
+      call.on("stream", (userVideoStream) => {
+        console.log('New stream with id ' + call.peer)
+        addVideoStream(video, userVideoStream, call.peer);
+      });
     });
+
+    socket.on("room:user-connected", (userId, room) => {
+      console.log(room)
+      console.log('new user connected with id ' + userId)
+      connectToNewUser(userId, stream);
+    });
+
+    socket.on("room:connected-me", (userId, room) => {
+      users = room.users
+      console.log('You have been connected with id ' + userId)
+      addVideoStream(myVideo, stream, userId);
+    });
+
+    socket.on("room:user-disconnected", (userId, room) => {
+      users = room.users
+      const videoDivId = 'video-user-' + userId
+      let videoDiv = document.querySelector('#' + videoDivId)
+      if (videoDiv) {
+        videoDiv.parentNode.removeChild(videoDiv)
+      }
+      console.log('user disconnected')
+    })
+  });
 
 const connectToNewUser = (userId, stream) => {
-    const call = peer.call(userId, stream);
-    const video = document.createElement("video");
-    call.on("stream", (userVideoStream) => {
-        addVideoStream(video, userVideoStream);
-    });
+  const call = peer.call(userId, stream);
+  const video = document.createElement("video");
+  call.on("stream", (userVideoStream) => {
+    addVideoStream(video, userVideoStream, userId);
+  });
 };
 
-const addVideoStream = (video, stream) => {
-    video.srcObject = stream;
-    video.addEventListener("loadedmetadata", () => {
-        video.play();
-        videoGrid.append(video);
-    });
+const addVideoStream = (video, stream, userId) => {
+  video.srcObject = stream;
+  video.addEventListener("loadedmetadata", () => {
+    const videoDivId = 'video-user-' + userId
+    let videoDiv = document.querySelector('#' + videoDivId)
+    if (!videoDiv) {
+      videoDiv = document.createElement('div')
+      videoDiv.setAttribute('id', videoDivId)
+    }
+
+    video.play();
+    videoDiv.append(video)
+    videoGrid.append(videoDiv);
+  });
 };
 
 peer.on("open", (id) => {
-    socket.emit("room:join", ROOM_ID, id, user);
+  console.log(id, ' ', username)
+  socket.emit("room:join", ROOM_ID, id, username);
 });
 // #endregion
 
 
 
 // #region interface?
-const videoGrid = document.getElementById("video-grid");
-const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
 const backBtn = document.querySelector(".header__back");
-myVideo.muted = true;
 
 backBtn.addEventListener("click", () => {
-    document.querySelector(".main__left").style.display = "flex";
-    document.querySelector(".main__left").style.flex = "1";
-    document.querySelector(".main__right").style.display = "none";
-    document.querySelector(".header__back").style.display = "none";
+  document.querySelector(".main__left").style.display = "flex";
+  document.querySelector(".main__left").style.flex = "1";
+  document.querySelector(".main__right").style.display = "none";
+  document.querySelector(".header__back").style.display = "none";
 });
 
 showChat.addEventListener("click", () => {
-    document.querySelector(".main__right").style.display = "flex";
-    document.querySelector(".main__right").style.flex = "1";
-    document.querySelector(".main__left").style.display = "none";
-    document.querySelector(".header__back").style.display = "block";
+  document.querySelector(".main__right").style.display = "flex";
+  document.querySelector(".main__right").style.flex = "1";
+  document.querySelector(".main__left").style.display = "none";
+  document.querySelector(".header__back").style.display = "block";
 });
 
-const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
-const stopVideo = document.querySelector("#stopVideo");
 muteButton.addEventListener("click", () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -118,6 +148,7 @@ muteButton.addEventListener("click", () => {
   }
 });
 
+const stopVideo = document.querySelector("#stopVideo");
 stopVideo.addEventListener("click", () => {
   const enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
@@ -133,6 +164,7 @@ stopVideo.addEventListener("click", () => {
   }
 });
 
+const inviteButton = document.querySelector("#inviteButton");
 inviteButton.addEventListener("click", (e) => {
   prompt(
     "Copy this link and send it to people you want to meet with",

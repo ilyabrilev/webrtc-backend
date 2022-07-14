@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js -e js,css,ejs"
+    "start": "env-cmd -f ./config/.env nodemon ./src/index.js -e js,css,ejs",
+    "dev": "env-cmd -f ./config/.env nodemon ./src/index.js -e js,css,ejs"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "ejs": "^3.1.8",
+    "env-cmd": "^10.1.0",
     "express": "^4.18.1",
     "peer": "^0.6.1",
     "socket.io": "^4.5.1",
