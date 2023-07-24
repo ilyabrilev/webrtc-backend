@@ -6,14 +6,20 @@ const { v4: uuidv4 } = require("uuid");
 const { Server: SocketServer } = require("socket.io");
 const { addUser, removeUser, getRoom } = require('./utils/rooms')
 
-//ToDo: let to let
-let key = fs.readFileSync(__dirname + '/../certs/selfsigned.key');
-let cert = fs.readFileSync(__dirname + '/../certs/selfsigned.crt');
-let passphrase = '123123123'
-let expressOptions = {
+const keyFilename = process.env.KEY_PATH;
+const certFilename = process.env.CERT_PATH;
+
+if (!fs.existsSync(keyFilename) || !fs.existsSync(certFilename)) {
+    throw new Error('Cert files not found');
+}
+
+const key = fs.readFileSync(keyFilename);
+const cert = fs.readFileSync(certFilename);
+// let passphrase = '123123123'
+const expressOptions = {
   key,
   cert,
-  passphrase
+//   passphrase
 };
 const app = express();
 const expressServer = https.createServer(expressOptions, app);
@@ -25,13 +31,12 @@ const io = new SocketServer(expressServer, {
 
 
 //peer
-//toDo: obj destructuring
-let ExpressPeerServer = require('peer').ExpressPeerServer;
-let peerExpress = require('express');
-let peerApp = peerExpress();
-let peerServer = require('https').createServer(expressOptions, peerApp);
-let peerOptions = { debug: true }
-let peerPort = process.env.PEER_PORT;
+const ExpressPeerServer = require('peer').ExpressPeerServer;
+const peerExpress = require('express');
+const peerApp = peerExpress();
+const peerServer = require('https').createServer(expressOptions, peerApp);
+const peerOptions = { debug: true }
+const peerPort = process.env.PEER_PORT;
 peerApp.use('/peerjs', ExpressPeerServer(peerServer, peerOptions));
 peerServer.listen(peerPort);
 
