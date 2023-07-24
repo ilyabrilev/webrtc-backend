@@ -48,7 +48,7 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-    //addVideoStream(myVideo, stream, 'me');
+    addVideoStream(myVideo, stream, 'me');
 
     peer.on("call", (call) => {
       call.answer(stream);
