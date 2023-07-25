@@ -15,7 +15,7 @@ app.use(express.static("public"));
 app.use(router);
 
 // start
-expressServer.listen(3000, () => {
+expressServer.listen(process.env.APP_PORT, () => {
     console.log(`listening on ${process.env.APP_URL}${process.env.APP_PORT ? ':'+process.env.APP_PORT : ''}`);
 });
 

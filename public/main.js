@@ -21,15 +21,15 @@ peer.on("open", (id) => {
 
 const connectToNewUser = (userId, stream) => {
   const call = peer.call(userId, stream);
-  const video = document.createElement("video");
+  const videoElement = document.createElement("video");
   call.on("stream", (userVideoStream) => {
-    addVideoStream(video, userVideoStream, userId);
+    addVideoStream(videoElement, userVideoStream, userId);
   });
 };
 
-const addVideoStream = (video, stream, userId) => {
-  video.srcObject = stream;
-  video.addEventListener("loadedmetadata", () => {
+const addVideoStream = (videoElement, stream, userId) => {
+  videoElement.srcObject = stream;
+  videoElement.addEventListener("loadedmetadata", () => {
     const videoDivId = 'video-user-' + userId
     let videoDiv = document.querySelector('#' + videoDivId)
     if (!videoDiv) {
@@ -37,14 +37,14 @@ const addVideoStream = (video, stream, userId) => {
       videoDiv.setAttribute('id', videoDivId)
     }
 
-    video.play();
-    videoDiv.append(video)
+    videoElement.play();
+    videoDiv.append(videoElement)
     videoGrid.append(videoDiv);
   });
 };
 
 // #region video
-const myVideo = document.createElement("video");
+const myVideoElement = document.createElement("video");
 const videoGrid = document.getElementById("video-grid");
 //ToDo: check if this feature is supported by browser by checkin existence of navigator.mediaDevices
 const myVideoStream = await navigator.mediaDevices
@@ -53,7 +53,7 @@ const myVideoStream = await navigator.mediaDevices
     video: true,
   });
 
-addVideoStream(myVideo, myVideoStream, 'me');
+addVideoStream(myVideoElement, myVideoStream, 'me');
 
 peer.on("call", (call) => {
   call.answer(myVideoStream);
@@ -73,7 +73,7 @@ socket.on("room:user-connected", (userId, room) => {
 socket.on("room:connected-me", (userId, room) => {
   users = room.users
   console.log('You have been connected with id ' + userId)
-  addVideoStream(myVideo, myVideoStream, userId);
+  addVideoStream(myVideoElement, myVideoStream, userId);
 });
 
 socket.on("room:user-disconnected", (userId, room) => {
