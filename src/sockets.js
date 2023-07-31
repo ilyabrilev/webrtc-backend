@@ -16,12 +16,12 @@ const setupSocketServer = (expressServer) => {
             console.log('a user ' + userName + ' connected to room ' + roomId + ' id ' + userId);
             socket.join(roomId);
             let room = addUser(roomId, userId, userName)
-            socket.broadcast.to(roomId).emit("room:user-connected", userId, room);
+            socket.broadcast.to(roomId).emit("room:user-connected", userId, userName, room);
             socket.emit("room:connected-me", userId, room);
 
             socket.on('message:create', (message) => {
                 console.log('message to ' + roomId + ': ' + message);
-                io.to(roomId).emit("message:new", message, userName);
+                io.to(roomId).emit("message:new", message, userName, userId);
             });
 
             socket.on('disconnect', () => {
