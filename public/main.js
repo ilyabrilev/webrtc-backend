@@ -11,7 +11,7 @@ setupChat(socket, username);
 const peer = new Peer(undefined, {
   path: "/peerjs",
   host: "/",
-  port: 3001,
+  port: 3002,
 });
 
 peer.on("open", (id) => {
