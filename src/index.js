@@ -13,7 +13,7 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(router);
 let expressServer;
-if (false) {
+if (process.env.HTTPS_DEV) {
     // start
     expressServer = https.createServer(expressOptions, app);
     expressServer.listen(process.env.APP_PORT, () => {
