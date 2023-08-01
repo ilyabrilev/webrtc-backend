@@ -13,6 +13,7 @@ const setupSocketServer = (expressServer) => {
     });
 
     io.on('connection', (socket) => {
+        console.log('connected to socket');
         socket.on("room:join", (roomId, userId, userName) => {
             console.log('a user ' + userName + ' connected to room ' + roomId + ' id ' + userId);
             socket.join(roomId);

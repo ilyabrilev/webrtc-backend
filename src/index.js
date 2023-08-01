@@ -26,5 +26,5 @@ if (process.env.HTTPS_DEV) {
     });    
 }
 
-setupPeer(expressOptions);
+// setupPeer(expressOptions);
 setupSocketServer(expressServer);
