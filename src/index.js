@@ -12,6 +12,8 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(router);
+
+
 let expressServer;
 if (process.env.HTTPS_DEV) {
     // start
