@@ -3,6 +3,7 @@ const peerExpress = require('express');
 const https = require('https');
 
 const setupPeer = (expressOptions) => {
+    console.log('setup peer');
     const peerApp = peerExpress();
     const peerServer = https.createServer(expressOptions, peerApp);
     const peerOptions = { debug: true }

@@ -5,6 +5,7 @@ const { addUser, removeUser, getRoom } = require('./utils/rooms');
 
 
 const setupSocketServer = (expressServer) => {
+    console.log('setup socket');
     const io = new SocketServer(expressServer, {
         cors: {
             origin: '*'
