@@ -13,7 +13,7 @@ app.use(express.static("public"));
 app.use(router);
 
 let expressServer;
-if (process.env.HTTPS_DEV) {
+if (true) {
     // start
     expressServer = https.createServer(expressOptions, app);
     expressServer.listen(process.env.APP_PORT, () => {

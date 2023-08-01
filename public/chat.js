@@ -5,6 +5,7 @@ const setupChat = (socket, username) => {
     chatForm.addEventListener('submit', function (e) {
       e.preventDefault();
       if (chatMessage.value.length !== 0) {
+        console.log('message sent');
         socket.emit('message:create', chatMessage.value);
         chatMessage.value = '';
       }
