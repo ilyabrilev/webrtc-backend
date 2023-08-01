@@ -9,7 +9,7 @@ const setupPeer = (expressOptions) => {
     const peerOptions = { debug: true }
     const peerPort = process.env.PEER_PORT;
     peerApp.use('/peerjs', ExpressPeerServer(peerServer, peerOptions));
-    peerServer.listen(peerPort);
+    peerServer.listen(peerPort, () => console.log('peerjs is listening on port ' + peerPort));
 }
 
 module.exports = setupPeer;
